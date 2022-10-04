@@ -1,6 +1,9 @@
 import json
 import os
 import shutil
+from operator import itemgetter
+
+
 
 def get_item_names(path):
 	"""Simple function to see items inside the folder."""
@@ -47,13 +50,30 @@ def dump_modlist_for_bat(mods_for_bat):
 	with open("mods_for_start_bat.txt", "w") as f:
 		f.write(mods_for_bat)
 
-def report_fail(mod, reason):
+def report_fail(mod=None, error_report=None, report=True):
 	"""Simple mod to create dictionary about reasons why copying failed."""
-	copy_fail = {
-				"mod" : mod,
-				"reason" : "no key folder"
-				}
-	copy_fails.append(copy_fail)
+	global copy_fails
+	errors = {
+		1 : "no items",
+		2 : "no key folder",
+		}
+	print("!!!!!!!!!!!!!!!!!!!!!")
+	if report:
+		print(mod, error_report)
+		copy_fail = {
+					"mod" : mod,
+					"error" : error_report,
+					}
+		copy_fails.append(copy_fail)
+	else:
+		print(copy_fails)
+		copy_fails = sorted(copy_fails, key=itemgetter('error_report'))
+
+		print("Following mods could not be copied:")
+		for copy_fail in copy_fails:
+			print(f"Error: {errors[copy_fail['error_report']]}\t"
+					"Mod: {copy_fail['mod']}")
+
 
 def copy_items_list(path_copy_from, path_extension, path_copy_to):
 	"""Simple function to copy items from one folder to another."""
@@ -85,12 +105,14 @@ def copy_mod_keys(mod_folder, new_path_keys):
 			copy_items_list(mod_folder, "key", new_path_keys)
 			return True
 		except FileNotFoundError:
-			report_fail(mod, "no key folder")
+			report_fail(mod, 2)
 			print(f"failed\n")
 			return False
 
 
-file_name = "dayz_path.json"
+file_name, mods_for_bat = "dayz_path.json", ""
+copy_fails, new_mod_folders =[], []
+
 dayz_mod_folder, dayZ_server_folder = get_dayz_folder_paths(file_name)
 new_path_addons = f"{dayZ_server_folder}/copy_addons_here"
 new_path_keys = f"{dayZ_server_folder}/copy_keys_here"
@@ -101,9 +123,7 @@ print(f"{len(mods)} mod-folders found.")
 raise_confirmation = str(input(
 	"Do you want to start copying the data to the DayZServer-folder? y/n"))
 
-mods_for_bat = ""
-copy_fails = []
-new_mod_folders = []
+
 
 if raise_confirmation == "y":
 	#check if copy_folders exist if not make some
@@ -135,15 +155,14 @@ if raise_confirmation == "y":
 				mods_for_bat += f"{mod};"
 				print(f"successfull\n")
 		else:
-			report_fail(mod, "no items found inside mod folder")
+			report_fail(mod, 1)
 			print(f"failed\n")
 else:
 	print("copy process aborted")
 
 
-print("Following mods could not be copied:")
-for copy_fail in copy_fails:
-		print(f"Mod: {copy_fail['mod']}\tReason: {copy_fail['reason']}")
+report_fail(report=False)
+		
 
 print("Following Mods have been updated:")
 for mod in new_mod_folders:
