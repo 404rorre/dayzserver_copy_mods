@@ -42,13 +42,13 @@ def dump_json_dict(file_name, **kwargs):
 		json.dump(kwargs, f, indent=4)
 	return kwargs
 
-def dump_modlist_for_bat(mods_for_bat):
+def dump_list(list_hlp, list_name):
 	"""
 	Simple function which dumps list into text file.
 	Can be copied into start.bat to start with special mods for server init.
 	"""
-	with open("mods_for_start_bat.txt", "w") as f:
-		f.write(mods_for_bat)
+	with open(list_name, "w") as f:
+		f.write(list_hlp)
 
 def report_fail(mod=None, error_report=None, report=True):
 	"""Simple mod to create dictionary about reasons why copying failed."""
@@ -106,6 +106,11 @@ def copy_mod_keys(mod_folder, new_path_keys):
 			print(f"failed\n")
 			report_fail(mod, 2)
 			return False
+
+@dump_list
+@report_fail(report=True)
+def dump_report():
+	"""Simple function to dump report as txt file."""
 
 
 file_name, mods_for_bat = "dayz_path.json", ""
@@ -166,6 +171,6 @@ print("Following Mods have been updated:")
 for mod in new_mod_folders:
 		print(mod)
 
-dump_modlist_for_bat(mods_for_bat)
+dump_list(mods_for_bat, "mods_for_start_bat.txt")
 
 input("Continue with Enter")
