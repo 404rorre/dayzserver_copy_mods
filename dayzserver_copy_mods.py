@@ -57,22 +57,20 @@ def report_fail(mod=None, error_report=None, report=True):
 		1 : "no items",
 		2 : "no key folder",
 		}
-	print("!!!!!!!!!!!!!!!!!!!!!")
 	if report:
-		print(mod, error_report)
 		copy_fail = {
 					"mod" : mod,
-					"error" : error_report,
+					"error" : int(error_report),
 					}
 		copy_fails.append(copy_fail)
 	else:
-		print(copy_fails)
-		copy_fails = sorted(copy_fails, key=itemgetter('error_report'))
+		copy_fails = sorted(copy_fails, key=itemgetter("error"),
+							reverse=True)
 
 		print("Following mods could not be copied:")
 		for copy_fail in copy_fails:
-			print(f"Error: {errors[copy_fail['error_report']]}\t"
-					"Mod: {copy_fail['mod']}")
+			print(f"Error: {errors[copy_fail['error']]}\t"
+					f"Mod: {copy_fail['mod']}")
 
 
 def copy_items_list(path_copy_from, path_extension, path_copy_to):
@@ -105,8 +103,8 @@ def copy_mod_keys(mod_folder, new_path_keys):
 			copy_items_list(mod_folder, "key", new_path_keys)
 			return True
 		except FileNotFoundError:
-			report_fail(mod, 2)
 			print(f"failed\n")
+			report_fail(mod, 2)
 			return False
 
 
@@ -155,8 +153,8 @@ if raise_confirmation == "y":
 				mods_for_bat += f"{mod};"
 				print(f"successfull\n")
 		else:
-			report_fail(mod, 1)
 			print(f"failed\n")
+			report_fail(mod, 1)
 else:
 	print("copy process aborted")
 
